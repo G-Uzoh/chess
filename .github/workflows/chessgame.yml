@@ -1,0 +1,49 @@
+name: Chess Game CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # Step 3: Cache node_modules (for faster builds)
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node_modules-
+
+      # Step 4: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 5: Run TypeScript checks
+      - name: Run TypeScript check
+        run: npm run type-check
+
+      # Step 6: Build the project
+      - name: Build the project
+        run: npm run build
+
+      # Step 7: Run tests (optional if you add tests in the future)
+      - name: Run tests
+        run: npm run test -- --ci --coverage
